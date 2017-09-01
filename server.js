@@ -55,6 +55,23 @@ app.post('/todos', function(req, res){
 	res.json(body);
 });
 
+//delete the request
+app.delete('/todos/:id', function(req, res){
+	var todoId = parseInt(req.params.id, 10);
+	var matchedId = _.findWhere(todos, {id: todoId});
+	
+	if(matchedId)
+	{
+		todos = _.without(todos,matchedId);
+		res.json(matchedId);
+		
+	}
+	else
+	{
+		res.status(404).json({"Ërror": "No paramter Id found!!"});
+	}
+});
+
 app.listen(PORT, function(){
 	console.log('Express listening on port '+ PORT + '!');
 });
