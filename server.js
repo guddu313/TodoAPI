@@ -18,7 +18,7 @@ app.get('/todos', function(req,res){
 	var queryparam = req.query;
 	var filterTodos = todos;
 
-	//added support of query parameter	
+	//added support of query parameter completed
 	if(queryparam.hasOwnProperty('completed') && queryparam.completed === 'true')
 	{
 		filterTodos = _.where(filterTodos, {completed: true});
@@ -27,6 +27,15 @@ app.get('/todos', function(req,res){
 	{
 		filterTodos = _.where(filterTodos, {completed: false});
 	}
+	
+	//added support of query paramter description
+	if(queryparam.hasOwnProperty('q') && queryparam.q.length > 0)
+	{
+		filterTodos = _.filter(filterTodos, function(todo){
+			return todo.description.toLowerCase().indexOf(queryparam.q.toLowerCase()) > -1;
+		});
+	}
+	
 	res.json(filterTodos);
 });
 
