@@ -18,28 +18,35 @@ app.get('/', function(req,res){
 //Get request /todos
 app.get('/todos', function(req,res){
 	
-	var queryparam = req.query;
-	var filterTodos = todos;
-
-	//added support of query parameter completed
-	if(queryparam.hasOwnProperty('completed') && queryparam.completed === 'true')
+	var query = req.query;
+	var where = {};
+	
+	if(query.hasOwnProperty('completed'))
 	{
-		filterTodos = _.where(filterTodos, {completed: true});
-	}
-	else if(queryparam.hasOwnProperty('completed') && queryparam.completed === 'false')
-	{
-		filterTodos = _.where(filterTodos, {completed: false});
+		if(query.completed === 'true')
+		{
+			where.completed = true;			
+		}
+		else
+		{
+			where.completed = false;	
+		}
 	}
 	
-	//added support of query paramter description
-	if(queryparam.hasOwnProperty('q') && queryparam.q.length > 0)
+	if(query.hasOwnProperty('q') && query.q.length > 0)
 	{
-		filterTodos = _.filter(filterTodos, function(todo){
-			return todo.description.toLowerCase().indexOf(queryparam.q.toLowerCase()) > -1;
-		});
+		where.description = {
+			$like: '%' + query.q + '%'
+		};
 	}
 	
-	res.json(filterTodos);
+	db.todo.findAll({
+		where: where
+	}).then(function(todo){
+		res.json(todo);
+	},function(e){
+		res.status(500).send();
+	});
 });
 
 //Get /todos/:id
