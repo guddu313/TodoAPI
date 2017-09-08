@@ -82,18 +82,25 @@ app.post('/todos', function(req, res){
 //delete the request
 app.delete('/todos/:id', function(req, res){
 	var todoId = parseInt(req.params.id, 10);
-	var matchedId = _.findWhere(todos, {id: todoId});
-	
-	if(matchedId)
-	{
-		todos = _.without(todos,matchedId);
-		res.json(matchedId);
-		
-	}
-	else
-	{
-		res.status(404).json({"Ërror": "No paramter Id found!!"});
-	}
+
+	db.todo.destroy({
+		where: {
+			id: todoId
+		}
+	}).then(function(rowsDeleted){
+		if(rowsDeleted === 0)
+		{
+			res.status(404).json({
+				"Error": "No Parameter Id found!!!"
+			});
+		}
+		else
+		{
+			res.status(204).send();
+		}
+	},function(){
+		res.status(500).send();
+	});
 });
 
 //update the array
