@@ -74,7 +74,11 @@ app.post('/todos', middleware.requireAuthentication, function(req, res){
 	var body = _.pick(req.body, 'description', 'completed');
 	
 	db.todo.create(body).then(function(data){
-		res.json(data.toJSON());
+		req.user.addTodo(data).then(function(){
+			return data.reload();
+		}).then(function(todo){
+			res.json(data.toJSON());
+		});
 	},function(e){
 		res.status(400).json(e);
 	});
